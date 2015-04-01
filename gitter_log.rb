@@ -8,7 +8,7 @@ SECURE_TOKEN_CONFIG = 'token'
 def weechat_init
   Weechat.register('gitterlog', 'Erick Pintor <erickpintor@gmail.com>', '1.0', 'MIT', 'Loads the history for all your gitter chats', '', '')
   Weechat.hook_command('gitterlog', 'Loads Gitter history', '', 'No arguments', '', 'on_gitterlog', '')
-  Weechat.hook_signal("*,irc_in2_join", "on_join", "")
+  Weechat.hook_signal('*,irc_in2_join', 'on_join', '')
 
   Weechat.config_set_plugin(SERVER_CONFIG, 'gitter') unless Weechat.config_is_set_plugin(SERVER_CONFIG)
   Weechat.config_set_plugin(SECURE_TOKEN_CONFIG, '') unless Weechat.config_is_set_plugin(SECURE_TOKEN_CONFIG)
