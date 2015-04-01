@@ -111,28 +111,7 @@ class UrlFetcher
   end
 end
 
-module IRCBuffer
-  private
-
-  def find_or_join_buffer(server, channel, join_command)
-    server_buffer, channel_buffer = irc_buffers(server, channel)
-    return channel_buffer unless server_buffer == channel_buffer
-
-    Weechat.command(server_buffer, join_command)
-    nil
-  end
-
-  def irc_buffers(server, channel)
-    [irc_buffer(server), irc_buffer("#{server},#{channel}")]
-  end
-
-  def irc_buffer(buffer_name)
-    Weechat.info_get('irc_buffer', buffer_name)
-  end
-end
-
 class Room
-  include IRCBuffer
 
   def self.parse(server, room_data)
     if room_data['uri'].nil?
@@ -147,9 +126,9 @@ class Room
   end
 
   def initialize(server, id, chat)
-    @server = server
     @id = id
     @chat = chat
+    @irc_buffer = IRCBuffer.new(server, chat)
   end
 
   def should_fetch?(filter_channel)
@@ -161,9 +140,36 @@ class Room
   end
 
   def buffer
-    @buffer ||= find_or_join_buffer(@server, @chat.name, @chat.join_command)
+    @buffer ||= @irc_buffer.find_or_join_buffer!
   end
 end
+
+class IRCBuffer
+
+  def initialize(server, chat)
+    @server = server
+    @chat = chat
+  end
+
+  def find_or_join_buffer!
+    server_buffer, channel_buffer = irc_buffers
+    return channel_buffer unless server_buffer == channel_buffer
+
+    Weechat.command(server_buffer, @chat.join_command)
+    nil
+  end
+
+  private
+
+  def irc_buffers
+    [irc_buffer(@server), irc_buffer("#{@server},#{@chat.name}")]
+  end
+
+  def irc_buffer(buffer_name)
+    Weechat.info_get('irc_buffer', buffer_name)
+  end
+end
+
 
 class Message
   def self.parse(message_data)
