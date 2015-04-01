@@ -181,7 +181,7 @@ class Message
   end
 
   def text
-    "#{@username}\t#{@sent_at.strftime('[%y-%m-%e %H:%M:%S]')} #{@text}"
+    "#{@username}\t#{@sent_at.strftime('[%y-%m-%d %H:%M:%S]')} #{@text}"
   end
 end
 
