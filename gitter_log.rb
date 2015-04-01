@@ -40,41 +40,16 @@ def fetch_logs(filter_channel=nil)
   Weechat::WEECHAT_RC_OK
 end
 
-module UrlFetcher
-  private
-
-  def fetch_url(address, secure_token)
-    uri = URI.parse(address)
-    response = perform_request(uri, http_get(uri, secure_token))
-
-    yield JSON.parse(response.body) if response.is_a? Net::HTTPSuccess
-  end
-
-  def perform_request(uri, http_request)
-    Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
-      http.request http_request
-    end
-  end
-
-  def http_get(uri, secure_token)
-    Net::HTTP::Get.new(uri).tap do |request|
-      request['Accept'] = 'application/json'
-      request['Authorization'] = "Bearer #{secure_token}"
-    end
-  end
-end
-
 class GitterLog
-  include UrlFetcher
 
   def initialize(server, filter_channel, secure_token)
     @server = server
     @filter_channel = filter_channel
-    @secure_token = secure_token
+    @fetcher = UrlFetcher.new(secure_token)
   end
 
   def fetch
-    fetch_url(Room.rooms_url, @secure_token) { |rooms_data| fetch_rooms rooms_data }
+    @fetcher.fetch_url(Room.rooms_url) { |rooms_data| fetch_rooms rooms_data }
   end
 
   private
@@ -92,7 +67,7 @@ class GitterLog
   def fetch_logs_for_room(room)
     return unless room.should_fetch? @filter_channel
 
-    fetch_url(room.messages_url, @secure_token) do |messages_data|
+    @fetcher.fetch_url(room.messages_url) do |messages_data|
       print room, Message.parse(messages_data)
     end
   end
@@ -103,6 +78,35 @@ class GitterLog
 
     messages_to_show.each do |message|
       Weechat.print room.buffer, message.text
+    end
+  end
+end
+
+class UrlFetcher
+
+  def initialize(secure_token)
+    @secure_token = secure_token
+  end
+
+  def fetch_url(address)
+    uri = URI.parse(address)
+    response = perform_request(uri, http_get(uri))
+
+    yield JSON.parse(response.body) if response.is_a? Net::HTTPSuccess
+  end
+
+  private
+
+  def perform_request(uri, http_request)
+    Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
+      http.request http_request
+    end
+  end
+
+  def http_get(uri)
+    Net::HTTP::Get.new(uri).tap do |request|
+      request['Accept'] = 'application/json'
+      request['Authorization'] = "Bearer #{@secure_token}"
     end
   end
 end
