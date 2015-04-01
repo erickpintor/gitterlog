@@ -11,7 +11,7 @@
 
 # How to install
 
-Download the gitter_log.rb to your ```~/.weechat/ruby``` folder and than type ```/script load gitter_log.rb``` in your Weechat.
+Download the gitter_log.rb to your ```~/.weechat/ruby``` folder and then type ```/script load gitter_log.rb``` in your Weechat.
 
 You might want to create a symbolic link on ```~/.weechat/ruby/autoload``` so you don't need to load the script manually again.
 
