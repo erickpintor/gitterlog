@@ -1,4 +1,4 @@
-# gitterlog
+# Gitterlog
 
 [Weechat][WEECHAT] plugin to get history from [Gitter.im][GITTER]
 
