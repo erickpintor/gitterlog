@@ -170,7 +170,6 @@ class IRCBuffer
   end
 end
 
-
 class Message
   def self.parse(message_data)
     message_data.map do |message|
