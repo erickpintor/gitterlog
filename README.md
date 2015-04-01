@@ -30,6 +30,11 @@ Once the script is loaded, it'll be watching for new channels and once you join 
 
 You can also force the download with the command ```/gitterlog```.
 
+# Inspiration
+
+This script was highly inspired by [Slacklog][SLACKLOG]
+
 [GITTER]:https://gitter.im
 [WEECHAT]:https://weechat.org/
 [SECURE_TOKEN]:https://developer.gitter.im/apps
+[SLACKLOG]:https://github.com/thoughtbot/weechat-slacklog
