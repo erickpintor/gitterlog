@@ -8,7 +8,9 @@ SECURE_TOKEN_CONFIG = 'token'
 def weechat_init
   Weechat.register('gitterlog', 'Erick Pintor <erickpintor@gmail.com>', '1.0', 'MIT', 'Loads the history for all your gitter chats', '', '')
   Weechat.hook_command('gitterlog', 'Loads Gitter history', '', 'No arguments', '', 'on_gitterlog', '')
+
   Weechat.hook_signal('*,irc_in2_join', 'on_join', '')
+  Weechat.hook_signal('irc_pv_opened', 'on_query', '')
 
   Weechat.config_set_plugin(SERVER_CONFIG, 'gitter') unless Weechat.config_is_set_plugin(SERVER_CONFIG)
   Weechat.config_set_plugin(SECURE_TOKEN_CONFIG, '') unless Weechat.config_is_set_plugin(SECURE_TOKEN_CONFIG)
@@ -25,6 +27,11 @@ def on_join(_, signal, data)
   return Weechat::WEECHAT_RC_OK if joined_server != Weechat.config_get_plugin(SERVER_CONFIG)
 
   fetch_logs data.sub(/.*JOIN (.*)$/, '\1')
+end
+
+def on_query(_, signal, data)
+  return Weechat::WEECHAT_RC_OK if Weechat.buffer_get_string(data, 'localvar_server') != Weechat.config_get_plugin(SERVER_CONFIG)
+  fetch_logs Weechat.buffer_get_string(data, 'localvar_channel')
 end
 
 def fetch_logs(filter_channel=nil)
