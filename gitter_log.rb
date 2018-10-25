@@ -43,6 +43,10 @@ def fetch_logs(filter_channel=nil)
     return Weechat::WEECHAT_RC_ERROR
   end
 
+  if secure_token.start_with?('${sec.data.')
+    secure_token = Weechat.string_eval_expression(secure_token, {}, {}, {})
+  end
+
   GitterLog.new(server, filter_channel, secure_token).fetch
   Weechat::WEECHAT_RC_OK
 end
